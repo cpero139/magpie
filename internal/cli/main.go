@@ -239,6 +239,7 @@ var startUp = func() {
 	// below write the files it may still be writing
 	update.AwaitPredecessor()
 	makeDirs()
+	logToFile() // what the log says from here is copied to magpie's cache too
 	settings.Migrate()
 	// every built-in plugin starts on (plugins.yml), on a new install too
 	if _, err := pluginrt.Settle(); err != nil {
