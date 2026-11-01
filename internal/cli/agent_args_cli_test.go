@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/yetone/magpie/internal/agent"
+	"github.com/yetone/magpie/internal/appdir"
 	"github.com/yetone/magpie/internal/provider"
 )
 
@@ -39,17 +40,21 @@ func cliHome(t *testing.T) {
 // folders, with each file's contents. Not magpie's cli-identity.json: who
 // Cursor's and Devin's CLIs say is signed in, asked again behind a look a
 // minute after the last answer and kept when it comes, which may be during
-// a later command, or in a later test's home.
+// a later command, or in a later test's home. Nor its log copy: a command
+// that runs the start-up moves writes the lines it logs from there on to
+// magpie.log (logfile.go), which is a copy of what it said, not a file it
+// set out to write.
 func homeFiles(t *testing.T) map[string]string {
 	t.Helper()
 	identities := filepath.Join(filepath.Dir(provider.Path()), "cli-identity.json")
+	logCopy := filepath.Join(appdir.Cache(), logName)
 	m := map[string]string{}
 	for _, root := range []string{os.Getenv("HOME"), os.Getenv("XDG_CONFIG_HOME"), os.Getenv("XDG_CACHE_HOME")} {
 		err := filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
-			if p == identities {
+			if p == identities || p == logCopy {
 				return nil
 			}
 			if d.IsDir() {
